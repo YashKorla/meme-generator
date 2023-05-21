@@ -1,47 +1,68 @@
 import React from "react";
 import "../App.css";
-import memesData from "../MemesData";
 
 function Meme() {
-  const [memeData, setMeme] = React.useState({
+  const [meme, setMeme] = React.useState({
     topText: "",
     bottomText: "",
     memeImage: "http://i.imgflip.com/1bij.jpg",
   });
-  const [allMemeImages, setAllMemeImages] = React.useState(
-    memesData.data.memes
-  );
+  const [allMeme, setAllMeme] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch("https://api.imgflip.com/get_memes")
+      .then((res) => res.json())
+      .then((data) => setAllMeme(data.data.memes));
+  }, []);
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setMeme((prevMeme) => {
+      return {
+        ...prevMeme,
+        [name]: value,
+      };
+    });
+  }
 
   function getMemeImage() {
-    const randomNumber = Math.floor(Math.random() * allMemeImages.length);
+    const randomNumber = Math.floor(Math.random() * allMeme.length);
     setMeme({
       topText: document.getElementById("topText").value,
       bottomText: document.getElementById("bottomText").value,
-      memeImage: allMemeImages[randomNumber].url,
+      memeImage: allMeme[randomNumber].url,
     });
   }
   return (
-    <main className="main">
+    <main className="form">
       <input
         type="text"
         id="topText"
         placeholder="Top Text"
-        className="input-fields mg-rt"
+        className="form-input"
+        name="topText"
+        value={meme.topText}
+        onChange={handleChange}
       />
       <input
         type="text"
         id="bottomText"
         placeholder="Bottom Text"
-        className="input-fields"
+        className="form-input"
+        name="bottomText"
+        value={meme.bottomText}
+        onChange={handleChange}
       />
       <input
         type="button"
         value="Get a new meme image"
-        className="btn"
+        className="form-button"
         onClick={getMemeImage}
       />
-      <div className="meme-image-box">
-        <img src={memeData.memeImage} className="meme-image" />
+      <div className="meme">
+        <img src={meme.memeImage} className="meme-image" />
+        <h2 className="meme-text top">{meme.topText}</h2>
+        <h2 className="meme-text bottom">{meme.bottomText}</h2>
       </div>
     </main>
   );
